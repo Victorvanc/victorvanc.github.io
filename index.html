@@ -528,7 +528,7 @@
 
   // Show iOS tip on iPhone/iPad
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone = window.navigator.standalone;
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   if (isIos && !isStandalone) {
     const tip = document.getElementById('iosInstallTip');
     if (tip) tip.style.display = 'block';
