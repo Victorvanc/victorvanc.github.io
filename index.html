@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cally</title>
+  <meta name="description" content="Maak een afspraak en stuur hem via WhatsApp. De ontvanger kan hem direct in zijn agenda zetten." />
+  <meta name="theme-color" content="#0f1a14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Cally" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1a14;
+      --surface: #162019;
+      --surface2: #1e2d22;
+      --accent: #4ade80;
+      --accent-dim: #22543d;
+      --text: #f0faf3;
+      --text-muted: #7aab8a;
+      --border: rgba(74,222,128,0.15);
+      --radius: 16px;
+      --wa: #25D366;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.5rem 1.25rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-mark svg { display: block; }
+
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    header h1 span { color: var(--accent); }
+
+    main {
+      flex: 1;
+      padding: 1.5rem 1.25rem 2rem;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.12);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.7) sepia(1) saturate(3) hue-rotate(90deg);
+      cursor: pointer;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .btn-wa {
+      width: 100%;
+      background: var(--wa);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 16px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.15s, opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-wa:active { transform: scale(0.97); opacity: 0.9; }
+
+    .btn-install-inline {
+      width: 100%;
+      background: var(--surface2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 15px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      transition: transform 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-install-inline:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      width: 100%;
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      transition: transform 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-secondary:active { transform: scale(0.97); background: var(--accent-dim); }
+
+    .error {
+      font-size: 13px;
+      color: #f87171;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .preview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .preview-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .preview-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .cal-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cal-btn {
+      flex: 1;
+      min-width: 130px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      transition: transform 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .cal-btn:active { transform: scale(0.97); opacity: 0.85; }
+
+    .cal-btn.google {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .cal-btn.apple {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--accent);
+      color: #0f1a14;
+      font-weight: 600;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 100px;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    .install-bar {
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .install-bar p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .install-bar strong { color: var(--text); }
+
+    .btn-install {
+      background: var(--accent);
+      color: #0f1a14;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .popup-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .popup-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      z-index: 201;
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .popup-sheet.open {
+      transform: translateY(0);
+    }
+    .popup-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 1.25rem;
+    }
+    .popup-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    .popup-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+  </style>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2HHFNRY0V"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R2HHFNRY0V');
+  </script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L10 10M10 10L6 6M10 10L14 6" stroke="#0f1a14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="3" y="13" width="14" height="5" rx="2" fill="#0f1a14"/>
+      </svg>
+    </div>
+    <h1>Cally</h1>
+  </header>
+
+  <main>
+    <p class="section-label">Afspraakgegevens</p>
+
+    <div class="form-group">
+      <label for="titel">Titel</label>
+      <input type="text" id="titel" placeholder="bijv. Koffie met Miriam" />
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label for="datum">Datum</label>
+        <input type="date" id="datum" />
+      </div>
+      <div class="form-group">
+        <label for="tijd">Begintijd</label>
+        <input type="time" id="tijd" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label for="eindtijd">Eindtijd</label>
+        <input type="time" id="eindtijd" />
+      </div>
+      <div class="form-group">
+        <label for="locatie">Locatie</label>
+        <input type="text" id="locatie" placeholder="optioneel" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="omschrijving">Omschrijving</label>
+      <textarea id="omschrijving" placeholder="Extra info (optioneel)..."></textarea>
+    </div>
+
+    <p class="error" id="foutmelding">Vul titel, datum, begintijd en eindtijd in.</p>
+
+    <div class="divider"></div>
+
+    <button class="btn-wa" onclick="delenViaWhatsapp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Stuur via WhatsApp
+    </button>
+
+    <button class="btn-install-inline" id="installBtnInline" onclick="installeerApp()" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      Installeer de app
+    </button>
+    <div id="iosInstallTip" style="display:none; font-size:13px; color:var(--text-muted); text-align:center; padding: 10px 0; line-height:1.6;">
+      Tik op <strong style="color:var(--text);">Deel</strong> <svg style="display:inline;vertical-align:middle;margin:0 2px;" width="16" height="16" viewBox="0 0 50 50" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="18" width="34" height="28" rx="4"/><line x1="25" y1="32" x2="25" y2="4"/><polyline points="15,14 25,4 35,14"/></svg> in Safari en kies <strong style="color:var(--text);">"Zet op beginscherm"</strong>
+    </div>
+
+    <button class="btn-secondary" onclick="kopieerLink()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Kopieer tekst
+    </button>
+
+    </main>
+
+  <div class="install-bar" id="installBar">
+    <p><strong>Installeer de app</strong><br/>Zet hem op je thuisscherm</p>
+    <button class="btn-install" id="installBtn">Installeer</button>
+  </div>
+</div>
+
+
+<div class="popup-overlay" id="popupOverlay" onclick="sluitPopup()"></div>
+<div class="popup-sheet" id="popupSheet">
+  <div class="popup-handle"></div>
+  <p class="popup-title" id="popup-titel"></p>
+  <p class="popup-meta" id="popup-meta"></p>
+  <div class="cal-buttons" style="flex-direction: column; gap: 10px;">
+    <a class="cal-btn google" id="popup-google" href="#" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Google Calendar
+    </a>
+    <a class="cal-btn apple" id="popup-apple" href="#">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Apple Calendar
+    </a>
+    <a class="cal-btn apple" id="popup-outlook" href="#" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/><path d="M6 4v4"/><path d="M18 4v4"/></svg>
+      Outlook
+    </a>
+  </div>
+  <div style="height: 1px; background: var(--border); margin: 1.25rem 0;"></div>
+  <button class="btn-wa" id="popup-wa-btn" onclick="sluitEnVerstuur()" style="display:none;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Verstuur via WhatsApp
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // PWA install prompt
+  let deferredPrompt = null;
+  const installBar = document.getElementById('installBar');
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('installBtnInline');
+    if (btn) { btn.style.display = 'flex'; }
+  });
+
+  // Show iOS tip on iPhone/iPad
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  if (isIos && !isStandalone) {
+    const tip = document.getElementById('iosInstallTip');
+    if (tip) tip.style.display = 'block';
+  }
+
+  function installeerApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(({ outcome }) => {
+      if (outcome === 'accepted') {
+        document.getElementById('installBtnInline').style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') installBar.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBar.style.display = 'none';
+    gtag('event', 'app_install', { event_category: 'engagement' });
+    toonToast('Cally geïnstalleerd!');
+  });
+
+  // Set today as default date
+  const vandaag = new Date().toISOString().split('T')[0];
+  document.getElementById('datum').value = vandaag;
+
+  function toonToast(tekst) {
+    const toast = document.getElementById('toast');
+    toast.textContent = tekst;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function formatIcal(datum, tijd) {
+    const [y, m, d] = datum.split('-');
+    const [h, mi] = tijd.split(':');
+    return y + m + d + 'T' + h + mi + '00';
+  }
+
+  function valideer() {
+    const fout = document.getElementById('foutmelding');
+    const v = ['titel','datum','tijd','eindtijd'].every(id => document.getElementById(id).value.trim());
+    fout.style.display = v ? 'none' : 'block';
+    return v;
+  }
+
+  function bouwData() {
+    const titel = document.getElementById('titel').value.trim();
+    const datum = document.getElementById('datum').value;
+    const tijd = document.getElementById('tijd').value;
+    const eindtijd = document.getElementById('eindtijd').value;
+    const locatie = document.getElementById('locatie').value.trim();
+    const omschrijving = document.getElementById('omschrijving').value.trim();
+
+    const start = formatIcal(datum, tijd);
+    const eind = formatIcal(datum, eindtijd);
+
+    const googleParams = new URLSearchParams({
+      action: 'TEMPLATE', text: titel,
+      dates: start + '/' + eind,
+      details: omschrijving, location: locatie
+    });
+    const googleUrl = 'https://calendar.google.com/calendar/render?' + googleParams;
+
+    const ics = [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Cally//NL',
+      'BEGIN:VEVENT',
+      'DTSTART:' + start, 'DTEND:' + eind,
+      'SUMMARY:' + titel, 'DESCRIPTION:' + omschrijving, 'LOCATION:' + locatie,
+      'END:VEVENT','END:VCALENDAR'
+    ].join('\r\n');
+    const icsUrl = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+
+    const [y,m,d] = datum.split('-');
+    const datumNl = d + '-' + m + '-' + y;
+
+    const shareParams = new URLSearchParams({ titel, datum, tijd, eindtijd, locatie, omschrijving });
+    const shareUrl = window.location.origin + '/afspraak.html?' + shareParams;
+
+    return { titel, datum, datumNl, tijd, eindtijd, locatie, googleUrl, icsUrl, shareUrl };
+  }
+
+  function delenViaWhatsapp() {
+    if (!valideer()) return;
+    const data = bouwData();
+    const tekst =
+      `📅 *${data.titel}*\n` +
+      `🗓 ${data.datumNl} van ${data.tijd} tot ${data.eindtijd}` +
+      (data.locatie ? `\n📍 ${data.locatie}` : '') +
+      `\n\n➕ Tik op de link om de afspraak in je agenda te zetten:\n${data.shareUrl}`;
+
+    gtag('event', 'whatsapp_share', { event_category: 'engagement' });
+    toonPopup(data, tekst);
+  }
+
+    function kopieerLink() {
+    if (!valideer()) return;
+    const data = bouwData();
+    navigator.clipboard.writeText(data.shareUrl).then(() => toonToast('Link gekopieerd!'));
+  }
+
+  
+  let _waLink = null;
+
+  function toonPopup(data, watekst) {
+    _waLink = watekst ? 'https://wa.me/?text=' + encodeURIComponent(watekst) : null;
+    document.getElementById('popup-titel').textContent = data.titel;
+    let meta = data.datumNl + ' · ' + data.tijd + '–' + data.eindtijd;
+    if (data.locatie) meta += ' · ' + data.locatie;
+    document.getElementById('popup-meta').textContent = meta;
+    document.getElementById('popup-google').href = data.googleUrl;
+    const appleLink = document.getElementById('popup-apple');
+    appleLink.href = data.icsUrl;
+    appleLink.download = data.titel.replace(/\s+/g, '_') + '.ics';
+    const outlookLink = document.getElementById('popup-outlook');
+    if (outlookLink) {
+      const olParams = new URLSearchParams({
+        subject: data.titel,
+        startdt: formatIcal(data.datum, data.tijd),
+        enddt: formatIcal(data.datum, data.eindtijd),
+        location: data.locatie,
+        body: data.omschrijving || '',
+        path: '/calendar/action/compose',
+        rru: 'addevent'
+      });
+      outlookLink.href = 'https://outlook.live.com/calendar/0/deeplink/compose?' + olParams;
+    }
+    const waBtn = document.getElementById('popup-wa-btn');
+    if (waBtn) waBtn.style.display = _waLink ? 'flex' : 'none';
+    document.getElementById('popupOverlay').classList.add('open');
+    document.getElementById('popupSheet').classList.add('open');
+  }
+
+  function sluitEnVerstuur() {
+    sluitPopup();
+    if (_waLink) setTimeout(() => window.open(_waLink, '_blank'), 300);
+  }
+
+  function sluitPopup() {
+    document.getElementById('popupOverlay').classList.remove('open');
+    document.getElementById('popupSheet').classList.remove('open');
+  }
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
