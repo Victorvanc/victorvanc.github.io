@@ -526,12 +526,17 @@
     if (btn) { btn.style.display = 'flex'; }
   });
 
-  // Show iOS tip on iPhone/iPad
+  // Show install options
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  if (isIos && !isStandalone) {
-    const tip = document.getElementById('iosInstallTip');
-    if (tip) tip.style.display = 'block';
+  const tip = document.getElementById('iosInstallTip');
+  const installBtn = document.getElementById('installBtnInline');
+  if (!isStandalone) {
+    if (isIos) {
+      if (tip) tip.style.display = 'block';
+    } else {
+      if (installBtn) installBtn.style.display = 'flex';
+    }
   }
 
   function installeerApp() {
