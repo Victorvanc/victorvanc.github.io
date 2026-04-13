@@ -465,10 +465,16 @@
       Tik op <strong style="color:var(--text);">Deel</strong> <svg style="display:inline;vertical-align:middle;margin:0 2px;" width="16" height="16" viewBox="0 0 50 50" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="18" width="34" height="28" rx="4"/><line x1="25" y1="32" x2="25" y2="4"/><polyline points="15,14 25,4 35,14"/></svg> in Safari en kies <strong style="color:var(--text);">"Zet op beginscherm"</strong>
     </div>
 
-    <button class="btn-secondary" onclick="kopieerLink()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-      Kopieer tekst
-    </button>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+      <button class="btn-secondary" onclick="delenViaMail()" style="margin-top:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8l10 6 10-6"/></svg>
+        Stuur via mail
+      </button>
+      <button class="btn-secondary" onclick="kopieerLink()" style="margin-top:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Kopieer link
+      </button>
+    </div>
 
     </main>
 
@@ -628,7 +634,32 @@
     toonPopup(data, tekst);
   }
 
-    function kopieerLink() {
+    function delenViaMail() {
+    if (!valideer()) return;
+    const data = bouwData();
+
+    const onderwerp = encodeURIComponent('Uitnodiging: ' + data.titel);
+    const body = encodeURIComponent(
+      'Hoi,
+
+Ik wil je uitnodigen voor: ' + data.titel + '
+' +
+      'Wanneer: ' + data.datumNl + ' van ' + data.tijd + ' tot ' + data.eindtijd +
+      (data.locatie ? '
+Locatie: ' + data.locatie : '') +
+      '
+
+Tik op de link om de afspraak in je agenda te zetten:
+' + data.shareUrl +
+      '
+
+Groeten'
+    );
+    window.open('mailto:?subject=' + onderwerp + '&body=' + body);
+    setTimeout(() => toonPopup(data, null), 500);
+  }
+
+  function kopieerLink() {
     if (!valideer()) return;
     const data = bouwData();
     navigator.clipboard.writeText(data.shareUrl).then(() => toonToast('Link gekopieerd!'));
